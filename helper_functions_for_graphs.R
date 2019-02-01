@@ -1,5 +1,6 @@
 library(ggplot2)
 library(cowplot)
+library(eulerr)
 library(ggpubr)
 library(gridExtra)
 library(data.table)
@@ -20,6 +21,7 @@ library(stringr)
 library(stringdist)
 library(EnsDb.Hsapiens.v86)
 library(rtracklayer)
+library(RColorBrewer)
 
 return_single_aa <- function(thre){
   if(any(AMINO_ACID_CODE == thre)){
@@ -29,7 +31,7 @@ return_single_aa <- function(thre){
   }
 }
 
-make_score_table <- function(dtab, scores = c("fathmmScore","condel","mutability","CountNew","LR","binomial"),negs = c(-1,1,-1,1,1,-1)){
+make_score_table <- function(dtab, scores = c("fathmmScore","condel","mutability","CountNew","LR","binomial"),negs = c(-1,1,-1,1,1,-1), roundto = 2){
   combinescores <- data.table(scores)
   combinescores[,AUCRoc := rep(0,length(scores))]
   combinescores[,AUCPR := rep(0,length(scores))]
@@ -39,13 +41,13 @@ make_score_table <- function(dtab, scores = c("fathmmScore","condel","mutability
   
   for(i in 1:length(scores)){
     
-    combinescores[scoreName == scores[i], MCC := round(get_mat_better(dtab,scores[i],neg = negs[i]),3)]
+    combinescores[scoreName == scores[i], MCC := round(get_mat_better(dtab,scores[i],neg = negs[i]), roundto)]
     
-    combinescores[scoreName == scores[i], AUCRoc := round(get_auc_better(dtab,scores[i],neg = negs[i]),3)]
+    combinescores[scoreName == scores[i], AUCRoc := round(get_auc_better(dtab,scores[i],neg = negs[i]),roundto)]
     
-    combinescores[scoreName == scores[i], AUCPR := round(get_pr_better(dtab,scores[i],neg = negs[i]),3)]
+    combinescores[scoreName == scores[i], AUCPR := round(get_pr_better(dtab,scores[i],neg = negs[i]),roundto)]
     
-    combinescores[scoreName == scores[i], Sens := round(sens_at10spec(dtab,scores[i]),3)]
+    combinescores[scoreName == scores[i], Sens := round(sens_at10spec(dtab,scores[i]), roundto)]
     
     
   }
@@ -352,13 +354,13 @@ make_correlation_grob <- function(dtab, corrTy, xval = 0.03, yval = 0.95,RFont){
   #run a  correlation between mutabiltiy and observed mutations
   
   if(corrTy %in% c("s","p")){
-    correl <- dtab[,cor.test(mutability,CountNew,method = corrTy)]
+    correl <- dtab[,cor.test(AminoMutabilityPan,AminoCountCosmicPan,method = corrTy)]
     #round it to 2 decimals
     rhoR <- round(correl$estimate,2)
     rho_p <- correl$p.value
     
   }else if(corrTy == "l"){  #if we want to show the Adj R Squared (yes, not a correlation)
-    muta_lr <- lm(MutationsPer ~ mutability, data = dtab)
+    muta_lr <- lm(AminoCountCosmicPan ~ AminoMutabilityPan, data = dtab)
 
     #this is the pvalue
     rho_p <- summary(muta_lr)$coefficients[2,4]
@@ -412,14 +414,11 @@ make_small_scatter <- function(gene = "none",subtype = "all",fs = 12,Rvj = 0.1, 
   }
   #if we want a specfic gene, create the grob for the name and reduce the table to just that gene
   if(gene != "none"){
+    #patch
+    setnames(dt, "gene", "Gene")
     dt <- dt[Gene == gene]
   }
   
-  #using ggscatter from the ggpubr package to draw the scatter plot, and it doesn't like names with spaces
-  #so we're going to change the name of the mutations per sample if it's in there
-  if("Mutations Per Sample" %in% names(dt)){
-    setnames(dt, "Mutations Per Sample","MutationsPer")
-  }
   
   if(subtype == "Missense"){
     col <-  "#00BFC4"
@@ -430,8 +429,9 @@ make_small_scatter <- function(gene = "none",subtype = "all",fs = 12,Rvj = 0.1, 
   }else{
     col <- "black"
   }
-  brksX <- seq(min(dt$mutability),max(dt$mutability),length.out = 2)
+  brksX <- seq(min(dt$AminoMutabilityPan),max(dt$AminoMutabilityPan),length.out = 2)
   xBrLab <- formatC(brksX, format = "e", digits = 1)
+  #xBrLab <- formatC(-1 * brksX, digits = 1)
   
   # if(frequencyType == "observed_wgs"){
   #   addL <- "none"
@@ -440,9 +440,9 @@ make_small_scatter <- function(gene = "none",subtype = "all",fs = 12,Rvj = 0.1, 
   #   upper <- max(dt$observed_wgs)
   if(frequencyType == "observed_wgs"){
       addL <- "reg.line"
-      brks <- seq(min(dt$CountNew),max(dt$CountNew),length.out = 2)
+      brks <- seq(min(dt$AminoCountCosmicPan),max(dt$AminoCountCosmicPan),length.out = 2)
       yBrLab <- brks
-      upper <- max(dt$CountNew)
+      upper <- max(dt$AminoCountCosmicPan)
   }else{
     addL <- "reg.line"
     brks <- seq(0,max(dt$MutationsPer),length.out = 2)
@@ -450,14 +450,13 @@ make_small_scatter <- function(gene = "none",subtype = "all",fs = 12,Rvj = 0.1, 
     upper <- max(dt$MutationsPer)
   }
   
-  sct <- ggscatter(dt, x = "mutability", y = "CountNew", color = col, add = addL,conf.int = T,size = 3) + 
+  sct <- ggscatter(dt, x = "AminoMutabilityPan", y = "AminoCountCosmicPan", color = col, add = addL,conf.int = T,size = 3) + 
     theme(axis.title = element_blank()) + 
     theme(axis.text = element_text(size=12)) +
     scale_y_continuous(breaks = brks,label = yBrLab) + 
     scale_x_continuous(breaks = brksX, label = xBrLab) +
     coord_cartesian(ylim = c(0,upper))
-  
-  
+
   #multiplier for the r vertical adjustment variable 
   rvjMult = 0
   #check that we don't have a gene
@@ -635,18 +634,18 @@ make_pr_table <- function(dtab, scores = c("fathmmScore","condel","mutability","
 }
 
 plot_roc_table <- function(full_table){
-  plt <- ggplot(full_table, aes(x = fpr, y = tpr, group = Measure)) + geom_line(aes(color = Measure),size = 2) + 
+  plt <- ggplot(full_table, aes(x = fpr, y = tpr, group = Measure)) + geom_line(aes(color = Measure),size = 1.3) + 
     theme(axis.title = element_blank()) +
-    scale_fill_manual(values = colorRampPalette(brewer.pal(9, "Dark2"))(8))+
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Dark2"))(9))+
     theme(aspect.ratio=1) 
   return(plt)
 }
 
 
 plot_pr_table <- function(full_table){
-  plt <-ggplot(full_table, aes(x = rec, y = prec, group = Measure)) + geom_line(aes(color = Measure),size = 2) + 
+  plt <-ggplot(full_table, aes(x = rec, y = prec, group = Measure)) + geom_line(aes(color = Measure),size = 1.3) + 
     theme(axis.title = element_blank()) +
-    scale_fill_manual(values = colorRampPalette(brewer.pal(9, "Dark2"))(colourCount))+
+    scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Dark2"))(9))+
     theme(aspect.ratio=1) +  theme(plot.margin=unit(c(0,0,0,1.2),"cm"))
   return(plt)
 }
@@ -678,6 +677,7 @@ make_standardized_values_nuc_mut <- function(gene_nucleotide){
   #gene_nucleotide <- get.geneNucMutability(gene)
   #get the frequency not counting zeros
   stand_obs <- (gene_nucleotide[CosmicPanCount != 0,c("mutabilityPan","context","wildtype", "mutant")])
+
   stand_obs[,Measure := "Observed"]
   #get the mutability
   stand_all <- (gene_nucleotide[,c("mutabilityPan","context","wildtype","mutant")])
