@@ -1,8 +1,6 @@
 ##read in the census table
 if(!exists("allamino_census_observed")){
-  # allamino_census <- fread("/Users/browna6/mahmood/binom/analyzed\ data/codon_substitution_table.csv")
-  # allamino_census_observed = allamino_census[AminoCountCosmicPan !=0]
-  allamino_census <- fread( "/Users/browna6/mahmood/binom/analyzed\ data/cancer_census_all_exons_take3.csv")
+  allamino_census <- fread("/Users/browna6/mahmood/binom/analyzed\ data/codon_substitution_table.csv")
   allamino_census_observed = allamino_census[AminoCountCosmicPan !=0]
 }
 
