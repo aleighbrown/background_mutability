@@ -109,9 +109,9 @@ group_annotation = ggplot(plot_table, aes (x = value, y = log10(Mutability), fil
   ylab(expression(bold(paste("-Log"[10], "Mutability"))))
 
 
-fit_euler = euler(c("Passengers" = 4137, "Passengers&MSK" = 226, "Passengers&MSK&COSMIC" = 63,
-                    "Passengers&COSMIC"=188, " Drivers" = 1139 , " Drivers&MSK " = 152, " Drivers&COSMIC " = 112,
-                    " Drivers&MSK &COSMIC " = 406))
+fit_euler = euler(c("Neutral" = 4137, "Neutral&MSK" = 226, "Neutral&MSK&COSMIC" = 63,
+                    "Neutral&COSMIC"=188, "Non-Neutral" = 1139 , "Non-Neutral&MSK " = 152, "Non-Neutral&COSMIC " = 112,
+                    "Non-Neutral&MSK &COSMIC " = 406))
 
 eu_plot = plot(fit_euler, c("#FFEDA0","#B3DBB8","#3C77AF","#f03b20","#B3DBB8","#3C77AF"), quantities = T)
 

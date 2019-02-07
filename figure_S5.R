@@ -1,5 +1,6 @@
 
 full_combined_dataset <- fread("~/mahmood/binom/analyzed data/final_benchmark.csv")
+full_combined_dataset[,MSKBScore := binom.test(x = (MSKFreq + 1), p = Mutability, n = 9228, alt = "g")$p.value, by = 1:nrow(full_combined_dataset)]
 
 #setnames(full_combined_dataset, c("fathmScore","CountNew","binomial","CSB","mutability", "vest","candra_score"), c("FatHMM","Frequency","B-Score","CHASM","Mutability", "VEST", "CanDrA"))
 
@@ -29,8 +30,23 @@ both <- ggarrange(one_withinset, two_withinset, labels = c("A","B"))
 both
 
 
+scores_msk =  c("FatHMM","MSKFreq","MSKBScore","CHASMplus","Mutability", "VEST", "CanDrA","REVEL","LR")
+
+
+make_score_table(full_combined_dataset[Frequency != 0],scores = scores, negs = negsvec)
+
+make_score_table(full_combined_dataset[MSKFreq != 0],scores = scores_msk, negs = negsvec)
 
 
 
+###Rare
+scores_rare =  c("FatHMM","B-Score","CHASMplus", "VEST", "CanDrA","REVEL")
+scores_raremsk =  c("FatHMM","MSKBScore","CHASMplus", "VEST", "CanDrA","REVEL")
 
+negsvec_rare =  get_negs_vector(full_combined_dataset, scores_rare)
 
+make_score_table(full_combined_dataset[Frequency == 0],scores = scores_rare, negs = negsvec_rare)
+make_score_table(full_combined_dataset[Frequency == 1],scores = scores_rare, negs = negsvec_rare)
+
+make_score_table(full_combined_dataset[MSKFreq == 0],scores = scores_raremsk, negs = negsvec_rare)
+make_score_table(full_combined_dataset[MSKFreq == 1],scores = scores_raremsk, negs = negsvec_rare)
