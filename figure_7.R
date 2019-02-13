@@ -88,7 +88,7 @@ full_combined_dataset$Annotation2 <- factor(full_combined_dataset$Annotation2 , 
 
 combined <- ggplot(full_combined_dataset, aes(Annotation2, log10(Mutability), fill = Annotation2)) + 
   geom_boxplot() + 
-  geom_jitter(aes(Annotation2, log10(Mutability)),position=position_jitter(width=0.1,height=0),size = 2, alpha = alp) + 
+  #geom_jitter(aes(Annotation2, log10(Mutability)),position=position_jitter(width=0.1,height=0),size = 2, alpha = alp) + 
   scale_fill_manual(values = c("#ffeda0","#F03B20")) +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = "none") +
@@ -126,7 +126,7 @@ comparison_plot = ggplot(subset(full_combined_dataset, !is.na(PlotGroup)), aes(x
   scale_y_continuous(breaks=c(-6.5, -6,-5.5,-5),labels = c("6.5","6","5.5","5")) +
   ylab(expression(bold(paste("-Log"[10], "Mutability"))))
  
-all_plots = ggarrange(combined,group_annotation,comparison_plot, labels = c("A", "B", "C"), nrow = 3, ncol = 1)
+all_plots = ggarrange(combined,group_annotation, labels = c("A", "B"), nrow = 2, ncol = 1)
 
 
 
