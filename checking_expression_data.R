@@ -1,6 +1,8 @@
-rebuilt_amino = fread("/Users/browna6/mahmood/binom/analyzed\ data/codon_substitution_table.csv")
-rebuilt_amino[,Status85:=(ifelse(BScore <=5.462115e-05,"Driver", ifelse(BScore<2.945374e-05,"Potential Driver","Undefined")))]
-driver_genes = allamino_census[Status85 == "Driver",unique(Gene)]
+rebuilt_amino <- fread("~/mahmood/binom/analyzed data/codon_substitution_table.csv")
+rebuilt_amino[BScore <=5.462115e-05,Status85 := "Driver"]
+
+
+driver_genes = rebuilt_amino[Status85 == "Driver",unique(gene)]
 
  
 ccle_data = fread("https://data.broadinstitute.org/ccle/CCLE_DepMap_18Q2_RNAseq_RPKM_20180502.gct")
@@ -26,6 +28,6 @@ ccle_data_RK_melted = rbind(ccle_data_RK_melted,ccle_IRS4_melted,fill = TRUE)
 tissue_gene_expression = ccle_data_RK_melted[,mean(RKPM), by = c("Gene","tissue")]
 
 
-notthere = setdiff(allamino_census[Status85 == "Driver",unique(Gene)],ccle_data_RK_melted[,unique(Gene)])
+notthere = setdiff(rebuilt_amino[Status85 == "Driver",unique(gene)],ccle_data_RK_melted[,unique(Gene)])
 
 driver_expression = tissue_gene_expression[Gene %in% driver_genes]

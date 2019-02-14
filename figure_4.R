@@ -1,15 +1,7 @@
-# if(!exists("allamino_census_observed")){
-#   #read in the census if I haven't yet
-#   allamino_census_observed <- fread("~/mahmood/binom/analyzed data/allamino_census_observed.csv")
-# }
-# 
-# if(!exists("corr_table")){
-#   #read in the census if I haven't yet
-#   corr_table <- fread("~/mahmood/binom/analyzed data/corr_table.csv")
-# }
+
 #read in the census table
 if(!exists("allamino_census")){
-  allamino_census <- fread( "/Users/browna6/mahmood/binom/analyzed\ data/cancer_census_all_exons_take3.csv")
+  allamino_census <- fread("~/mahmood/binom/analyzed data/codon_substitution_table.csv")
 }
 
 allamino_census_observed = allamino_census[AminoCountCosmicPan !=0]

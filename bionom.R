@@ -83,7 +83,7 @@ subchar <- function(string, pos, char) {
 }
 
 
-##adds the condon that the nucleotide substition belongs to in the protein
+##adds the codon that the nucleotide substition belongs to in the protein
 bind.codon <- function(geneMutability, transcript){
   #make a data table of all the codons in the protein 
   c <-  as.data.table(codons(DNAString(transcript$sequence)))
@@ -124,9 +124,7 @@ get.geneNucMutability <- function(gene, acc = 33999){
   }
   
 
-  #basically for calculation of probability for each nucleotide I want the trinuc sequence, there's probably a smart way to do this but I'm going to take the numeric
-  #value out of the mutiation in the first data table using regex, add a column called position to that table, set it as the key, and then pull the trincule from stealme
-  #and throw that sucka away
+
 
   geneMutability[,pos:= as.integer(str_extract(mutation,'[[:digit:]]+'))]
   
@@ -145,6 +143,7 @@ get.geneNucMutability <- function(gene, acc = 33999){
 
   return(geneMutability)
 }
+
 #takes the table of the mutability of nucleotide sites  + observed mutations and adds a column with the mutant codon -> mutant codon used later for calculating the probability of an amino acid substitution
 mutate.codons <- function(geneMutability, transcript){
   
@@ -185,7 +184,6 @@ get.geneAminoMutability <- function(gene, acc = 33999){
     print(gene)
     return(0)
   }
-  
   
   #pull position information, for the amino acid
   aminomuta[,pos:= as.integer(str_extract(mutation,'[[:digit:]]+'))]

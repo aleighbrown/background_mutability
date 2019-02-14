@@ -4,19 +4,17 @@ full_combined_dataset[,MSKBScore := binom.test(x = (MSKFreq + 1), p = Mutability
 
 #setnames(full_combined_dataset, c("fathmScore","CountNew","binomial","CSB","mutability", "vest","candra_score"), c("FatHMM","Frequency","B-Score","CHASM","Mutability", "VEST", "CanDrA"))
 
-scores =  c("FatHMM","Frequency","B-Score","CHASMplus","Mutability", "VEST", "CanDrA","REVEL","LR")
+scores =  c("FatHMM","Frequency","B-Score","CHASMplus", "VEST", "CanDrA","REVEL")
 
 negsvec =  get_negs_vector(full_combined_dataset, scores)
 
 combined_roc_table <- make_roc_table(full_combined_dataset,scores = scores, negs = negsvec)
  
 combined_roc_table <- combined_roc_table[!(Measure == "Frequency" & alpha == 0)]
-combined_roc_table <- combined_roc_table[!(Measure == "LR" & alpha == 0)]
 
 combined_pr_table <- make_pr_table(full_combined_dataset,scores = scores ,negs = negsvec)
 
 combined_pr_table <- combined_pr_table[!(Measure == "Frequency" & alpha == 0)]
-combined_pr_table <- combined_pr_table[!(Measure == "LR" & alpha == 0)]
 
 one <- plot_roc_table(combined_roc_table)
 one_withinset <- make_inset_ROC(one,xmin = 0.3,ymax = 0.65) + theme(legend.position = c(0.7,0.7))
@@ -30,7 +28,7 @@ both <- ggarrange(one_withinset, two_withinset, labels = c("A","B"))
 both
 
 
-scores_msk =  c("FatHMM","MSKFreq","MSKBScore","CHASMplus","Mutability", "VEST", "CanDrA","REVEL","LR")
+scores_msk =  c("FatHMM","MSKFreq","MSKBScore","CHASMplus","Mutability", "VEST", "CanDrA","REVEL")
 
 
 make_score_table(full_combined_dataset[Frequency != 0],scores = scores, negs = negsvec)
