@@ -1,6 +1,14 @@
 rebuilt_amino <- fread("~/mahmood/binom/analyzed data/codon_substitution_table.csv")
 rebuilt_amino[BScore <=5.462115e-05,Status85 := "Driver"]
 
+#quickly rename some genes. FML I am never using Hugo symbols again after this project. Too many alias
+rebuilt_amino[gene == "NSD3", gene := "WHSC1L1"]
+rebuilt_amino[gene == "KNL1", gene := "CASC5"]
+rebuilt_amino[gene == "AFDN", gene := "MLLT4"]
+#can't seem to find any data on SRSF2, or any alisas, or it's ensembl identifer ENSG00000161547. MLLT11 is in the CCLE website, but no expression data for that gene
+#quickly rename some genes. never using Hugo symbols again after this project. Too many alias. Live and learn I guess. 
+rebuilt_amino[gene == "WDCP", gene := "C2orf44"]
+rebuilt_amino[gene == "NSD2", gene := "WHSC1"]
 
 driver_genes = rebuilt_amino[Status85 == "Driver",unique(gene)]
 
@@ -22,12 +30,18 @@ setnames(ccle_data_RK_melted2, c("Description","variable","value"),c("Gene","ccl
 
 #split up the tissue name into name and tissue
 ccle_data_RK_melted2[,tissue := str_split(str = ccle_name, pattern = "_", n = 2,simplify = T)[,2]]
-ccle_data_RK_melted = rbind(ccle_data_RK_melted,ccle_IRS4_melted,fill = TRUE)
+ccle_data_RK_melted = rbind(ccle_data_RK_melted2,ccle_IRS4_melted,fill = TRUE)
+
+
 
 
 tissue_gene_expression = ccle_data_RK_melted[,mean(RKPM), by = c("Gene","tissue")]
 
 
-notthere = setdiff(rebuilt_amino[Status85 == "Driver",unique(gene)],ccle_data_RK_melted[,unique(Gene)])
+
+notthere = setdiff(rebuilt_amino[,unique(gene)],ccle_data_RK_melted[,unique(Gene)])
 
 driver_expression = tissue_gene_expression[Gene %in% driver_genes]
+all_expression = tissue_gene_expression[Gene %in% rebuilt_amino[,unique(gene)]]
+all_expression[V1 > 0.5 ]
+driver_expression[V1 > 0.5 ]
