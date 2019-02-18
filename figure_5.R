@@ -1,48 +1,39 @@
-##read in the census table
-if(!exists("allamino_census_observed")){
-  allamino_census <- fread("/Users/browna6/mahmood/binom/analyzed\ data/codon_substitution_table.csv")
-  allamino_census_observed = allamino_census[AminoCountCosmicPan !=0]
+#read in a csv containing all the mutations for all the census gens
+#read in the census table
+if(!exists("rebuilt_amino")){
+  rebuilt_amino <- fread("~/mahmood/binom/analyzed data/codon_substitution_table.csv")
 }
+#all
 
-#all genes and all subtypes
-all <-  make_small_scatter(dtab = allamino_census_observed,measures = c("s","p")) +
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-#all subtypes only oncogenes
-all_onco <- make_small_scatter(dtab = allamino_census_observed[BinnedRole == "Oncogene"],measures = c("s","p"))+ 
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-#all subtypes only TSG
-all_TSG <- make_small_scatter(dtab = allamino_census_observed[BinnedRole == "TSG"],measures = c("s","p"))+ 
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
+####now by oncogene tsg
+
+oncoTSG <- ggplot(subset(rebuilt_amino, BinnedRole %in% c("Oncogene","TSG")),
+                  aes(x=BinnedRole, y=log10(AminoMutabilityPan),fill = SubType, alpha = AminoCosmicGroupPan)) +
+  geom_boxplot() +
+  facet_grid(. ~ SubType) +
+  scale_fill_manual(values = c("#00BFC4","#F8766D","#7CAE00")) +
+  theme(axis.title = element_blank(), legend.position = "none") +
+  scale_y_continuous(breaks=c(-6.5, -6,-5.5,-5),labels = c("6.5","6","5.5","5")) 
+
+xvals <- c(1.28125, 1.09375, 0.90625, 0.71875, 2.28125, 2.09375, 1.90625, 1.71875)
+xvals <- sort(xvals)
+
+group_labels <- c("0","1","2","3+","0","1","2","3+")
+
+oncoTSG <- annotate_groups(oncoTSG,xvals, yval = -7, fsize = 5, labels = group_labels)
+
+#version 1
+#fig3 <- ggarrange(all, domRec, oncoTSG, ncol = 1, nrow = 3, labels = c("A", "B", "C"))
 
 
-mOnc <- make_small_scatter(gene = "none",subtype = "Missense",Rvj = 0.1, dtab = allamino_census_observed[BinnedRole == "Oncogene"],frequencyType = "observed_wgs",measures = c("s","p")) + 
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-nOnc <- make_small_scatter(gene = "none",subtype = "Nonsense",Rvj = 0.1, dtab = allamino_census_observed[BinnedRole == "Oncogene"],frequencyType = "observed_wgs",measures = c("s","p"))+
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-sOnc <- make_small_scatter(gene = "none",subtype = "Silent",Rvj = 0.1, dtab = allamino_census_observed[BinnedRole == "Oncogene"],frequencyType = "observed_wgs",measures = c("s","p"))+
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
+fig3 <- annotate_figure(oncoTSG,left = text_grob(expression(bold(paste("-Log"[10], " Mutability"))), rot = 90))
 
-mTSG <- make_small_scatter(gene = "none",subtype = "Missense",Rvj = 0.1, dtab = allamino_census_observed[BinnedRole == "TSG"],frequencyType = "observed_wgs",measures = c("s","p")) +
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-nTSG <- make_small_scatter(gene = "none",subtype = "Nonsense",Rvj = 0.1, dtab = allamino_census_observed[BinnedRole == "TSG"],frequencyType = "observed_wgs",measures = c("s","p"))+
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-sTSG <- make_small_scatter(gene = "none",subtype = "Silent",Rvj = 0.1, dtab = allamino_census_observed[BinnedRole == "TSG"],frequencyType = "observed_wgs",measures = c("s","p")) +
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
+fig3
+##i guess we can do tests as well 
+# #correlation between mutability and frequency
+# allamino_census$group <- as.factor(allamino_census$group)
+# allamino_census$RoleinCancer <- as.factor(allamino_census$RoleinCancer)
+# 
+# kruskal.test(allamino_census$mutability, allamino_census$SubType)
+# dunn.test::dunn.test(allamino_census$mutability, allamino_census$SubType)
 
-onco <- plot_grid(all_onco, mOnc,nOnc,sOnc, labels = c("B") ,nrow = 4,align = "hv")
-onco <- annotate_figure(onco, top = text_grob("Oncogenes",size = 18))
-
-tsg <- plot_grid(all_TSG, mTSG,nTSG,sTSG, labels = c("C"), nrow = 4,align = "hv")
-tsg <- annotate_figure(tsg, top = text_grob("TSG",size = 18))
-
-nonsense <- make_small_scatter(subtype = "Nonsense", dtab = allamino_census_observed,measures = c("s","p")) +
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-silent <- make_small_scatter(subtype = "Silent", dtab = allamino_census_observed,measures = c("s","p")) +
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-missense <- make_small_scatter(subtype = "Missense", dtab = allamino_census_observed,measures = c("s","p")) +
-  theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-
-bySub <- plot_grid(all, missense,nonsense,silent,nrow = 4, labels = c("A"), align = "hv")
-bySub <- annotate_figure(bySub, top =text_grob("All Genes",size = 18))
-bysubRole <- plot_grid(bySub,onco,tsg,ncol = 3) + theme(plot.margin = unit(c(1,0.5,0.5,0.5), "cm")) 
-annotate_figure(bysubRole,left = text_grob("Observed Mutation", rot = 90,size = 12,face = "bold"), bottom = text_grob(expression(bold("Mutability"))))

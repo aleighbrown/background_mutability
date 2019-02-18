@@ -1,11 +1,13 @@
 if(!exists("census_84_allnucleot")){
-  census_84_allnucleot<- fread("~/mahmood/binom/analyzed data/census_84_allnucleot_exons_take3.csv")
+  #census_84_allnucleot<- fread("~/mahmood/binom/analyzed data/census_84_allnucleot_exons_take3.csv")
+  census_84_allnucleot<- fread("/Users/browna6/mahmood/binom/analyzed\ data/nucleotide_mutation_table.csv")
   
 }
 #read in a csv containing all the mutations for all the census gens
 #read in the census table
 if(!exists("allamino_census")){
-  allamino_census <- fread( "~/mahmood/binom/analyzed data/cancer_census_all_exons_take3.csv")
+  allamino_census <- fread( "~/mahmood/binom/analyzed data/codon_substitution_table.csv")
+  #allamino_census <- fread( "~/mahmood/binom/analyzed data/cancer_census_all_exons_take3.csv")
   allamino_census_observed = allamino_census[CountNew != 0]
 }
 

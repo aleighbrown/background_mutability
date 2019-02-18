@@ -150,6 +150,6 @@ nucleotide_plot <- plot_grid(type_cdf_nuc,all_nuc,align = "h",axis = 'b',labels 
 ggarrange(aminoacid_plot,nucleotide_plot, nrow = 2)
 # ###for tests
 
-#rebuilt_nucobserved$SubType <- as.factor(rebuilt_nucobserved$SubType)
-#kruskal.test(rebuilt_nucobserved$mutability, rebuilt_nucobserved$SubType)
-#dunn.test::dunn.test(rebuilt_nucobserved$mutability, rebuilt_nucobserved$SubType)
+# rebuilt_nuc_observed$SubType <- as.factor(rebuilt_nuc_observed$SubType)
+# kruskal.test(rebuilt_nuc_observed$mutabilityPan, rebuilt_nuc_observed$SubType)
+# test_result = dunn.test::dunn.test(rebuilt_nuc_observed$mutabilityPan, rebuilt_nuc_observed$SubType)

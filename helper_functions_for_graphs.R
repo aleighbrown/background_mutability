@@ -450,7 +450,7 @@ make_small_scatter <- function(gene = "none",subtype = "all",fs = 12,Rvj = 0.1, 
     upper <- max(dt$MutationsPer)
   }
   
-  sct <- ggscatter(dt, x = "AminoMutabilityPan", y = "AminoCountCosmicPan", color = col, add = addL,conf.int = T,size = 3) + 
+  sct <- ggscatter(dt, x = "AminoMutabilityPan", y = "AminoCountCosmicPan", color = col,size = 3) + 
     theme(axis.title = element_blank()) + 
     theme(axis.text = element_text(size=12)) +
     scale_y_continuous(breaks = brks,label = yBrLab) + 
