@@ -2,13 +2,14 @@
 #read in the census table
 if(!exists("rebuilt_amino")){
   rebuilt_amino <- fread("~/mahmood/binom/analyzed data/codon_substitution_table.csv")
+  rebuilt_amino = rebuilt_amino[SubType != ""]
 }
 #all
 
 ####now by oncogene tsg
 
 oncoTSG <- ggplot(subset(rebuilt_amino, BinnedRole %in% c("Oncogene","TSG")),
-                  aes(x=BinnedRole, y=log10(AminoMutabilityPan),fill = SubType, alpha = AminoCosmicGroupPan)) +
+                  aes(x=BinnedRole, y=log10(AminoMutabilityPan),fill = SubType, alpha = group)) +
   geom_boxplot() +
   facet_grid(. ~ SubType) +
   scale_fill_manual(values = c("#00BFC4","#F8766D","#7CAE00")) +
